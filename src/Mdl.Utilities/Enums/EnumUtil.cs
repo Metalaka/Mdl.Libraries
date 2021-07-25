@@ -12,7 +12,11 @@ namespace Mdl.Utilities.Enums
         /// <typeparam name="TEnum">An enum type.</typeparam>
         public static IEnumerable<(TEnum Value, string Name)> GetValuesNames<TEnum>() where TEnum : struct, Enum
         {
+#if NETSTANDARD
+            return ((TEnum[]) Enum.GetValues(typeof(TEnum))).Select(value => (value, value.ToString()));
+#else
             return Enum.GetValues<TEnum>().Select(value => (value, value.ToString()));
+#endif
         }
     }
 }
