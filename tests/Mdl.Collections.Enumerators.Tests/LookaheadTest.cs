@@ -5,12 +5,12 @@ using Xunit;
 
 namespace Mdl.Collections.Enumerators.Tests
 {
-    public class LookbehindTest
+    public class LookaheadTest
     {
         [Fact]
         public void Constructor_ShouldThrow_WhenNullEnumerablesProvided()
         {
-            Assert.Throws<ArgumentNullException>(() => new Lookbehind<int>(null));
+            Assert.Throws<ArgumentNullException>(() => new Lookahead<int>(null));
         }
 
         [Fact]
@@ -22,14 +22,14 @@ namespace Mdl.Collections.Enumerators.Tests
             };
             var expected = new int[]
             {
-                0, 1
+                2, 0
             };
             var result = new List<int>();
-            var sut = new Lookbehind<int>(list);
+            var sut = new Lookahead<int>(list);
 
             foreach (var data in sut)
             {
-                result.Add(data.Previous);
+                result.Add(data.Next);
             }
 
             Assert.Equal(expected, result);
@@ -47,11 +47,11 @@ namespace Mdl.Collections.Enumerators.Tests
                 1, 2, 3
             };
             var result = new List<int>();
-            IEnumerable sut = new Lookbehind<int>(list);
+            IEnumerable sut = new Lookahead<int>(list);
 
             foreach (var data in sut)
             {
-                result.Add(((Lookbehind<int>.Data) data).Current);
+                result.Add(((Lookahead<int>.Data) data).Current);
             }
 
             Assert.Equal(expected, result);
@@ -66,14 +66,14 @@ namespace Mdl.Collections.Enumerators.Tests
             };
             var expected = new bool[]
             {
-                false, true, true
+                true, true, false
             };
             var result = new List<bool>();
-            var sut = new Lookbehind<int>(list);
+            var sut = new Lookahead<int>(list);
 
             foreach (var data in sut)
             {
-                result.Add(data.HasPrevious);
+                result.Add(data.HasNext);
             }
 
             Assert.Equal(expected, result);

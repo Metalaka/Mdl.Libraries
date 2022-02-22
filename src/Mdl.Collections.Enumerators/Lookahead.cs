@@ -6,14 +6,14 @@ using Mdl.Utilities.Ensures;
 namespace Mdl.Collections.Enumerators
 {
     /// <summary>
-    /// Look behind enumerator.
+    /// Look ahead enumerator.
     /// </summary>
     /// <typeparam name="TValue">Type of the enumerable values.</typeparam>
-    public class Lookbehind<TValue> : IEnumerable<Lookbehind<TValue>.Data>
+    public class Lookahead<TValue> : IEnumerable<Lookahead<TValue>.Data>
     {
         private readonly Lazy<IEnumerable<Data>> _enumerable;
 
-        public Lookbehind(IEnumerable<TValue> enumerable)
+        public Lookahead(IEnumerable<TValue> enumerable)
         {
             Ensure.NotNull(enumerable);
             
@@ -23,26 +23,19 @@ namespace Mdl.Collections.Enumerators
         private static IEnumerable<Data> BuildData(IEnumerable<TValue> enumerable)
         {
             using IEnumerator<TValue> enumerator = enumerable.GetEnumerator();
-            TValue? previous = default;
-            bool first = true;
+            if (!enumerator.MoveNext())
+            {
+                yield break;
+            }
+            TValue previous = enumerator.Current;
 
             while (enumerator.MoveNext())
             {
-                TValue current = enumerator.Current;
-
-                if (first)
-                {
-                    first = false;
-
-                    yield return new Data(current);
-
-                    previous = current;
-                    continue;
-                }
-
-                yield return new Data(current, previous);
-                previous = current;
+                yield return new Data(previous, enumerator.Current);
+                previous = enumerator.Current;
             }
+            
+            yield return new Data(previous);
         }
 
         public IEnumerator<Data> GetEnumerator()
@@ -58,21 +51,21 @@ namespace Mdl.Collections.Enumerators
         public readonly struct Data
         {
             public TValue Current { get; }
-            public TValue? Previous { get; }
-            public bool HasPrevious { get; }
+            public TValue? Next { get; }
+            public bool HasNext { get; }
 
             internal Data(TValue current)
             {
                 Current = current;
-                Previous = default;
-                HasPrevious = false;
+                Next = default;
+                HasNext = false;
             }
-
-            internal Data(TValue current, TValue? previous)
+            
+            internal Data(TValue current, TValue next)
             {
                 Current = current;
-                Previous = previous;
-                HasPrevious = true;
+                Next = next;
+                HasNext = true;
             }
         }
     }
