@@ -10,8 +10,8 @@
     <RepositoryType>git</RepositoryType>
     <Description>Mdl.Collections.Enumerators</Description>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <LangVersion>8</LangVersion>
-    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>net5.0;net6.0;netstandard2.0</TargetFrameworks>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
