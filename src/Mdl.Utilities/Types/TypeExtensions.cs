@@ -1,25 +1,24 @@
-﻿using System;
+﻿namespace Mdl.Utilities.Types;
+
+using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace Mdl.Utilities.Types
+public static class TypeExtensions
 {
-    public static class TypeExtensions
+    /// <summary>
+    /// Indicate whether a type is considered anonymous.
+    /// </summary>
+    public static bool IsAnonymousType(this Type type)
     {
-        /// <summary>
-        /// Indicate whether a type is considered anonymous.
-        /// </summary>
-        public static bool IsAnonymousType(this Type type)
-        {
-            bool hasCompilerGeneratedAttribute = type
-                .GetCustomAttributes(typeof(CompilerGeneratedAttribute), false)
-                .Any();
-            bool? nameContainsAnonymousType = type.FullName?.Contains(@"AnonymousType");
-            bool isAnonymousType = hasCompilerGeneratedAttribute &&
-                                   nameContainsAnonymousType.HasValue &&
-                                   nameContainsAnonymousType.Value;
+        bool hasCompilerGeneratedAttribute = type
+            .GetCustomAttributes(typeof(CompilerGeneratedAttribute), false)
+            .Any();
+        bool? nameContainsAnonymousType = type.FullName?.Contains(@"AnonymousType");
+        bool isAnonymousType = hasCompilerGeneratedAttribute &&
+                               nameContainsAnonymousType.HasValue &&
+                               nameContainsAnonymousType.Value;
 
-            return isAnonymousType;
-        }
+        return isAnonymousType;
     }
 }

@@ -1,20 +1,19 @@
-﻿using System.Diagnostics;
+﻿namespace Mdl.Utilities.Types;
+
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Mdl.Utilities.Types
+public static class TypeUtil
 {
-    public static class TypeUtil
+    /// <summary>
+    /// Return the method name.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static string GetCurrentMethodName()
     {
-        /// <summary>
-        /// Return the method name.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static string GetCurrentMethodName()
-        {
-            StackTrace stackTrace = new();
-            StackFrame frame = stackTrace.GetFrame(1)!;
+        StackTrace stackTrace = new();
+        StackFrame frame = stackTrace.GetFrame(1)!;
 
-            return frame.GetMethod()?.Name ?? "";
-        }
+        return frame.GetMethod()?.Name ?? "";
     }
 }
