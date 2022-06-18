@@ -76,7 +76,7 @@ namespace Mdl.Collections.Enumerators
         private sealed class ConsumableEnumerator : IEnumerator
         {
             private readonly IEnumerable _enumerable;
-            private IEnumerator _enumerator;
+            private IEnumerator? _enumerator;
             public bool Consumed { get; private set; }
 
             public ConsumableEnumerator(IEnumerable enumerable, bool consumed = false)
@@ -94,7 +94,7 @@ namespace Mdl.Collections.Enumerators
 
             public bool MoveNext()
             {
-                return _enumerator.MoveNext();
+                return _enumerator?.MoveNext() ?? false;
             }
 
             public void Reset()
@@ -102,7 +102,7 @@ namespace Mdl.Collections.Enumerators
                 _enumerator = _enumerable.GetEnumerator();
             }
 
-            public object Current => _enumerator.Current;
+            public object? Current => _enumerator?.Current;
         }
     }
 }
