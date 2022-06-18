@@ -11,8 +11,9 @@ namespace Mdl.Utilities.Types
         /// </summary>
         public static bool IsAnonymousType(this Type type)
         {
-            bool hasCompilerGeneratedAttribute = type.GetCustomAttributes(
-                typeof(CompilerGeneratedAttribute), false).Any();
+            bool hasCompilerGeneratedAttribute = type
+                .GetCustomAttributes(typeof(CompilerGeneratedAttribute), false)
+                .Any();
             bool? nameContainsAnonymousType = type.FullName?.Contains(@"AnonymousType");
             bool isAnonymousType = hasCompilerGeneratedAttribute &&
                                    nameContainsAnonymousType.HasValue &&

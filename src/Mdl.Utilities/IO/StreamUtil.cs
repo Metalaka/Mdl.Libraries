@@ -17,7 +17,7 @@ namespace Mdl.Utilities.IO
         {
             stream.Seek(0, SeekOrigin.Begin);
 
-            using var reader = new StreamReader(stream, encoding);
+            using StreamReader reader = new(stream, encoding);
 
             return reader.ReadToEnd();
         }
