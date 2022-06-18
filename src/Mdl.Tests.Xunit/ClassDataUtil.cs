@@ -1,27 +1,25 @@
-﻿using System;
+﻿namespace Mdl.Tests.Xunit;
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Mdl.Collections.Enumerators;
 
-namespace Mdl.Tests.Xunit
+/// <summary>
+/// Utility class of <see cref="Xunit.ClassData" />
+/// </summary>
+public static class ClassDataUtil
 {
     /// <summary>
-    /// Utility class of <see cref="Xunit.ClassData"/>
+    /// Build an enumerator from several enumerable
     /// </summary>
-    public static class ClassDataUtil
+    public static IEnumerator<object[]> BuildEnumerator(params IEnumerable[] enumerable)
     {
-        /// <summary>
-        /// Build an enumerator from several enumerable
-        /// </summary>
-        public static IEnumerator<object[]> BuildEnumerator(params IEnumerable[] enumerable)
+        MultipleMax multipleMax = new(enumerable);
+
+        foreach (IEnumerable? data in multipleMax)
         {
-            var multipleMax = new MultipleMax(enumerable);
-            
-            foreach (var data in multipleMax)
-            {
-                yield return data.Cast<object[]>().Select(e => e[0]).ToArray();
-            }
+            yield return data.Cast<object[]>().Select(e => e[0]).ToArray();
         }
     }
 }

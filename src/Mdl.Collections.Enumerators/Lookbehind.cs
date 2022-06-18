@@ -1,79 +1,78 @@
-﻿using System;
+﻿namespace Mdl.Collections.Enumerators;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Mdl.Utilities.Ensures;
+using Microsoft.Toolkit.Diagnostics;
 
-namespace Mdl.Collections.Enumerators
+/// <summary>
+/// Look behind enumerator.
+/// </summary>
+/// <typeparam name="TValue">Type of the enumerable values.</typeparam>
+public class Lookbehind<TValue> : IEnumerable<Lookbehind<TValue>.Data>
 {
-    /// <summary>
-    /// Look behind enumerator.
-    /// </summary>
-    /// <typeparam name="TValue">Type of the enumerable values.</typeparam>
-    public class Lookbehind<TValue> : IEnumerable<Lookbehind<TValue>.Data>
+    private readonly Lazy<IEnumerable<Data>> _enumerable;
+
+    public Lookbehind(IEnumerable<TValue> enumerable)
     {
-        private readonly Lazy<IEnumerable<Data>> _enumerable;
+        Guard.IsNotNull(enumerable, nameof(enumerable));
 
-        public Lookbehind(IEnumerable<TValue> enumerable)
+        _enumerable = new Lazy<IEnumerable<Data>>(() => BuildData(enumerable));
+    }
+
+    public IEnumerator<Data> GetEnumerator()
+    {
+        return _enumerable.Value.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return ((IEnumerable) _enumerable.Value).GetEnumerator();
+    }
+
+    private static IEnumerable<Data> BuildData(IEnumerable<TValue> enumerable)
+    {
+        using IEnumerator<TValue> enumerator = enumerable.GetEnumerator();
+        TValue? previous = default;
+        bool first = true;
+
+        while (enumerator.MoveNext())
         {
-            Ensure.NotNull(enumerable);
-            
-            _enumerable = new Lazy<IEnumerable<Data>>(() => BuildData(enumerable));
-        }
+            TValue current = enumerator.Current;
 
-        private static IEnumerable<Data> BuildData(IEnumerable<TValue> enumerable)
-        {
-            using IEnumerator<TValue> enumerator = enumerable.GetEnumerator();
-            TValue? previous = default;
-            bool first = true;
-
-            while (enumerator.MoveNext())
+            if (first)
             {
-                TValue current = enumerator.Current;
+                first = false;
 
-                if (first)
-                {
-                    first = false;
+                yield return new Data(current);
 
-                    yield return new Data(current);
-
-                    previous = current;
-                    continue;
-                }
-
-                yield return new Data(current, previous);
                 previous = current;
-            }
-        }
-
-        public IEnumerator<Data> GetEnumerator()
-        {
-            return _enumerable.Value.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable) _enumerable.Value).GetEnumerator();
-        }
-
-        public readonly struct Data
-        {
-            public TValue Current { get; }
-            public TValue? Previous { get; }
-            public bool HasPrevious { get; }
-
-            internal Data(TValue current)
-            {
-                Current = current;
-                Previous = default;
-                HasPrevious = false;
+                continue;
             }
 
-            internal Data(TValue current, TValue? previous)
-            {
-                Current = current;
-                Previous = previous;
-                HasPrevious = true;
-            }
+            yield return new Data(current, previous);
+            previous = current;
+        }
+    }
+
+    public readonly struct Data
+    {
+        public TValue Current { get; }
+        public TValue? Previous { get; }
+        public bool HasPrevious { get; }
+
+        internal Data(TValue current)
+        {
+            Current = current;
+            Previous = default;
+            HasPrevious = false;
+        }
+
+        internal Data(TValue current, TValue? previous)
+        {
+            Current = current;
+            Previous = previous;
+            HasPrevious = true;
         }
     }
 }
