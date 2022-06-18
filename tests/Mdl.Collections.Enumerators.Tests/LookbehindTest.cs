@@ -1,82 +1,81 @@
+namespace Mdl.Collections.Enumerators.Tests;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Mdl.Collections.Enumerators.Tests
+public class LookbehindTest
 {
-    public class LookbehindTest
+    [Fact]
+    public void Constructor_ShouldThrow_WhenNullEnumerablesProvided()
     {
-        [Fact]
-        public void Constructor_ShouldThrow_WhenNullEnumerablesProvided()
+        Assert.Throws<ArgumentNullException>(() => new Lookbehind<int>(null));
+    }
+
+    [Fact]
+    public void GetEnumerator_ShouldReturnThePreviousValueOfInnerEnumerable()
+    {
+        List<int> list = new()
         {
-            Assert.Throws<ArgumentNullException>(() => new Lookbehind<int>(null));
+            1, 2,
+        };
+        int[] expected =
+        {
+            0, 1,
+        };
+        List<int> result = new();
+        Lookbehind<int> sut = new(list);
+
+        foreach (Lookbehind<int>.Data data in sut)
+        {
+            result.Add(data.Previous);
         }
 
-        [Fact]
-        public void GetEnumerator_ShouldReturnThePreviousValueOfInnerEnumerable()
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void IEnumerableGetEnumerator_ShouldReturnTheCurrentValueOfInnerEnumerable()
+    {
+        List<int> list = new()
         {
-            var list = new List<int>
-            {
-                1, 2
-            };
-            var expected = new int[]
-            {
-                0, 1
-            };
-            var result = new List<int>();
-            var sut = new Lookbehind<int>(list);
-
-            foreach (var data in sut)
-            {
-                result.Add(data.Previous);
-            }
-
-            Assert.Equal(expected, result);
-        }
-        
-        [Fact]
-        public void IEnumerableGetEnumerator_ShouldReturnTheCurrentValueOfInnerEnumerable()
+            1, 2, 3,
+        };
+        int[] expected =
         {
-            var list = new List<int>
-            {
-                1, 2, 3
-            };
-            var expected = new int[]
-            {
-                1, 2, 3
-            };
-            var result = new List<int>();
-            IEnumerable sut = new Lookbehind<int>(list);
+            1, 2, 3,
+        };
+        List<int> result = new();
+        IEnumerable sut = new Lookbehind<int>(list);
 
-            foreach (var data in sut)
-            {
-                result.Add(((Lookbehind<int>.Data) data).Current);
-            }
-
-            Assert.Equal(expected, result);
-        }
-        
-        [Fact]
-        public void GetEnumerator_ShouldReturnWhetherTheInnerEnumerableHasPreviousValue()
+        foreach (object data in sut)
         {
-            var list = new List<int>
-            {
-                1, 2, 3
-            };
-            var expected = new bool[]
-            {
-                false, true, true
-            };
-            var result = new List<bool>();
-            var sut = new Lookbehind<int>(list);
-
-            foreach (var data in sut)
-            {
-                result.Add(data.HasPrevious);
-            }
-
-            Assert.Equal(expected, result);
+            result.Add(((Lookbehind<int>.Data) data).Current);
         }
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void GetEnumerator_ShouldReturnWhetherTheInnerEnumerableHasPreviousValue()
+    {
+        List<int> list = new()
+        {
+            1, 2, 3,
+        };
+        bool[] expected =
+        {
+            false, true, true,
+        };
+        List<bool> result = new();
+        Lookbehind<int> sut = new(list);
+
+        foreach (Lookbehind<int>.Data data in sut)
+        {
+            result.Add(data.HasPrevious);
+        }
+
+        Assert.Equal(expected, result);
     }
 }

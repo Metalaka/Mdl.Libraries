@@ -1,108 +1,107 @@
+namespace Mdl.Collections.Enumerators.Tests;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Mdl.Collections.Enumerators.Tests
+public class MultipleMaxTest
 {
-    public class MultipleMaxTest
+    [Fact]
+    public void Count_ShouldReturnTheMaxCountOfInnerEnumerables_WithEnumerable()
     {
-        [Fact]
-        public void Count_ShouldReturnTheMaxCountOfInnerEnumerables_WithEnumerable()
+        List<string> list = new()
         {
-            var list = new List<string>
-            {
-                "aze", "rty"
-            };
-            var list2 = new List<int>
-            {
-                123
-            };
-            var expected = new int[]
-            {
-                list.Count,
-                list2.Count,
-            }.Max();
-            var sut = new MultipleMax(list, list2);
+            "aze", "rty",
+        };
+        List<int> list2 = new()
+        {
+            123,
+        };
+        int expected = new[]
+        {
+            list.Count,
+            list2.Count,
+        }.Max();
+        MultipleMax sut = new(list, list2);
 
-            var result = sut.Count();
+        int result = sut.Count();
 
-            Assert.Equal(expected, result);
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void Count_ShouldReturnTheMaxCountOfInnerEnumerables_WithYieldEnumerable()
+    {
+        IEnumerable Data()
+        {
+            yield return "test";
+            yield return string.Empty;
         }
 
-        [Fact]
-        public void Count_ShouldReturnTheMaxCountOfInnerEnumerables_WithYieldEnumerable()
+        IEnumerable Data2()
         {
-            IEnumerable Data()
-            {
-                yield return "test";
-                yield return string.Empty;
-            }
-
-            IEnumerable Data2()
-            {
-                yield return 123;
-            }
-
-            var list = Data();
-            var list2 = Data2();
-            var sut = new MultipleMax(list, list2);
-
-            var result = sut.Count();
-
-            Assert.Equal(2, result);
+            yield return 123;
         }
 
-        [Fact]
-        public void GetEnumerator_ShouldReturnTheMaxCountOfInnerEnumerables_WithEnumerable()
+        IEnumerable list = Data();
+        IEnumerable list2 = Data2();
+        MultipleMax sut = new(list, list2);
+
+        int result = sut.Count();
+
+        Assert.Equal(2, result);
+    }
+
+    [Fact]
+    public void GetEnumerator_ShouldReturnTheMaxCountOfInnerEnumerables_WithEnumerable()
+    {
+        List<int> list = new()
         {
-            var list = new List<int>
-            {
-                1, 2
-            };
-            var list2 = new List<int>
-            {
-                123
-            };
-            var expected = new int[]
-            {
-                124,
-                125,
-            };
-            var result = new List<int>();
-            IEnumerable sut = new MultipleMax(list, list2);
+            1, 2,
+        };
+        List<int> list2 = new()
+        {
+            123,
+        };
+        int[] expected =
+        {
+            124,
+            125,
+        };
+        List<int> result = new();
+        IEnumerable sut = new MultipleMax(list, list2);
 
-            foreach (IEnumerable enumerable in sut)
-            {
-                result.Add(enumerable.OfType<int>().Sum());
-            }
-
-            Assert.Equal(expected, result);
+        foreach (IEnumerable enumerable in sut)
+        {
+            result.Add(enumerable.OfType<int>().Sum());
         }
 
-        [Fact]
-        public void Constructor_ShouldThrow_WhenNoEnumerableProvided()
-        {
-            Assert.Throws<ArgumentException>(() => new MultipleMax());
-        }
+        Assert.Equal(expected, result);
+    }
 
-        [Fact]
-        public void Constructor_ShouldThrow_WhenNullEnumerableProvided()
-        {
-            Assert.Throws<ArgumentNullException>(() => new MultipleMax(null));
-        }
+    [Fact]
+    public void Constructor_ShouldThrow_WhenNoEnumerableProvided()
+    {
+        Assert.Throws<ArgumentException>(() => new MultipleMax());
+    }
 
-        [Fact]
-        public void Constructor_ShouldThrow_WhenNullEnumerablesProvided()
-        {
-            Assert.Throws<ArgumentNullException>(() => new MultipleMax(null, null));
-        }
+    [Fact]
+    public void Constructor_ShouldThrow_WhenNullEnumerableProvided()
+    {
+        Assert.Throws<ArgumentNullException>(() => new MultipleMax(null));
+    }
 
-        [Fact(Skip = "No use case available to test this edge case.")]
-        public void Constructor_ShouldThrow_WhenEnumerableCantBeReset()
-        {
-            throw new NotImplementedException("No use case available to test this edge case.");
-        }
+    [Fact]
+    public void Constructor_ShouldThrow_WhenNullEnumerablesProvided()
+    {
+        Assert.Throws<ArgumentNullException>(() => new MultipleMax(null, null));
+    }
+
+    [Fact(Skip = "No use case available to test this edge case.")]
+    public void Constructor_ShouldThrow_WhenEnumerableCantBeReset()
+    {
+        throw new NotImplementedException("No use case available to test this edge case.");
     }
 }

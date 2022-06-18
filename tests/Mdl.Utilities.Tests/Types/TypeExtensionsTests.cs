@@ -1,29 +1,27 @@
-using System;
+namespace Mdl.Utilities.Tests.Types;
+
 using Mdl.Utilities.Types;
 using Xunit;
 
-namespace Mdl.Utilities.Tests.Types
+public class TypeExtensionsTests
 {
-    public class TypeExtensionsTests
+    [Fact]
+    public void IsAnonymousType_ShouldReturnTrue_WhenAnAnonymousTypeIsGiven()
     {
-        [Fact]
-        public void IsAnonymousType_ShouldReturnTrue_WhenAnAnonymousTypeIsGiven()
-        {
-            var sut = new { };
+        var sut = new { };
 
-            bool result = sut.GetType().IsAnonymousType();
+        bool result = sut.GetType().IsAnonymousType();
 
-            Assert.True(result);
-        }
+        Assert.True(result);
+    }
 
-        [Fact]
-        public void IsAnonymousType_ShouldReturnFalse_WhenATupleIsGiven()
-        {
-            (int, string) sut = (0, "");
+    [Fact]
+    public void IsAnonymousType_ShouldReturnFalse_WhenATupleIsGiven()
+    {
+        (int, string) sut = (0, "");
 
-            bool result = sut.GetType().IsAnonymousType();
+        bool result = sut.GetType().IsAnonymousType();
 
-            Assert.False(result);
-        }
+        Assert.False(result);
     }
 }

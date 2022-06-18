@@ -1,58 +1,57 @@
-﻿using System.Collections.Generic;
+﻿namespace Mdl.Collections.Tests.Async;
+
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Mdl.Collections.Async;
 using Xunit;
 
-namespace Mdl.Collections.Tests.Async
+public class AsynchronousExtensionsTests
 {
-    public class AsynchronousExtensionsTests
+    [Fact]
+    public async Task AnyAsParallelAsync_ShouldReturnTrue_IfAnItemMatchThePredicate()
     {
-        [Fact]
-        public async Task AnyAsParallelAsync_ShouldReturnTrue_IfAnItemMatchThePredicate()
+        const bool expected = true;
+        List<bool> list = new()
         {
-            const bool expected = true;
-            var list = new List<bool>()
-            {
-                false,
-                false,
-                true,
-            };
+            false,
+            false,
+            true,
+        };
 
-            bool result = await list.AnyAsParallelAsync(b => Task.FromResult(b));
+        bool result = await list.AnyAsParallelAsync(b => Task.FromResult(b));
 
-            Assert.Equal(expected, result);
-        }
+        Assert.Equal(expected, result);
+    }
 
-        [Fact]
-        public async Task AllAsParallelAsync_ShouldReturnTrue_IfAllItemMatchThePredicate()
+    [Fact]
+    public async Task AllAsParallelAsync_ShouldReturnTrue_IfAllItemMatchThePredicate()
+    {
+        const bool expected = true;
+        List<bool> list = new()
         {
-            const bool expected = true;
-            var list = new List<bool>()
-            {
-                true,
-                true,
-                true,
-            };
+            true,
+            true,
+            true,
+        };
 
-            bool result = await list.AllAsParallelAsync(b => Task.FromResult(b));
+        bool result = await list.AllAsParallelAsync(b => Task.FromResult(b));
 
-            Assert.Equal(expected, result);
-        }
-        
-        [Fact]
-        public async Task AllAsParallelAsync_ShouldReturnFalse_IfAnItemDoesNotMatchThePredicate()
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public async Task AllAsParallelAsync_ShouldReturnFalse_IfAnItemDoesNotMatchThePredicate()
+    {
+        const bool expected = false;
+        List<bool> list = new()
         {
-            const bool expected = false;
-            var list = new List<bool>()
-            {
-                true,
-                false,
-                true,
-            };
+            true,
+            false,
+            true,
+        };
 
-            bool result = await list.AllAsParallelAsync(b => Task.FromResult(b));
+        bool result = await list.AllAsParallelAsync(b => Task.FromResult(b));
 
-            Assert.Equal(expected, result);
-        }
+        Assert.Equal(expected, result);
     }
 }

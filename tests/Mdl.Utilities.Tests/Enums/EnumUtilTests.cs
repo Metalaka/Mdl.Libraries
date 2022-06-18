@@ -1,32 +1,30 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿namespace Mdl.Utilities.Tests.Enums;
+
+using System.Collections.Generic;
 using Mdl.Utilities.Enums;
 using Xunit;
 
-namespace Mdl.Utilities.Tests.Enums
+public class EnumUtilTests
 {
-    public class EnumUtilTests
+    [Fact]
+    public void GetValuesNames_ShouldReturnValueAndNames_WhenCalled()
     {
-        private enum TestData
+        (TestData, string)[] expected =
         {
-            One,
-            Two,
-            Zero
-        }
+            (TestData.One, "One"),
+            (TestData.Two, "Two"),
+            (TestData.Zero, "Zero"),
+        };
 
-        [Fact]
-        public void GetValuesNames_ShouldReturnValueAndNames_WhenCalled()
-        {
-            var expected = new[]
-            {
-                (TestData.One, "One"),
-                (TestData.Two, "Two"),
-                (TestData.Zero, "Zero"),
-            };
+        IEnumerable<(TestData Value, string Name)> result = EnumUtil.GetValuesNames<TestData>();
 
-            var result = EnumUtil.GetValuesNames<TestData>();
+        Assert.Equal(expected, result);
+    }
 
-            Assert.Equal(expected, result);
-        }
+    private enum TestData
+    {
+        One,
+        Two,
+        Zero,
     }
 }

@@ -1,17 +1,15 @@
-using System;
+namespace Mdl.Utilities.Tests.Types;
+
 using Mdl.Utilities.Types;
 using Xunit;
 
-namespace Mdl.Utilities.Tests.Types
+public class TypeUtilTests
 {
-    public class TypeUtilTests
+    [Fact]
+    public void GetCurrentMethodName_ShouldReturnTheCallerMethodName()
     {
-        [Fact]
-        public void GetCurrentMethodName_ShouldReturnTheCallerMethodName()
-        {
-            string methodName = TypeUtil.GetCurrentMethodName();
+        string methodName = TypeUtil.GetCurrentMethodName();
 
-            Assert.Equal(nameof(GetCurrentMethodName_ShouldReturnTheCallerMethodName), methodName);
-        }
+        Assert.Equal(nameof(GetCurrentMethodName_ShouldReturnTheCallerMethodName), methodName);
     }
 }
