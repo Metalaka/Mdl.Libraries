@@ -1,57 +1,55 @@
-﻿using System;
+﻿namespace Mdl.Collections.Enumerators;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Toolkit.Diagnostics;
 
-namespace Mdl.Collections.Enumerators
+/// <summary>
+/// Iterates over two enumerator sequentially.
+/// </summary>
+/// <typeparam name="TFirst">Type of the first enumerable values.</typeparam>
+/// <typeparam name="TSecond">Type of the second enumerable values.</typeparam>
+public class PairEnumerator<TFirst, TSecond> : IEnumerable<(TFirst First, TSecond Second)>
 {
-    using Microsoft.Toolkit.Diagnostics;
+    private readonly Lazy<IEnumerable<(TFirst First, TSecond Second)>> _enumerable;
 
-    /// <summary>
-    /// Iterates over two enumerator sequentially.
-    /// </summary>
-    /// <typeparam name="TFirst">Type of the first enumerable values.</typeparam>
-    /// <typeparam name="TSecond">Type of the second enumerable values.</typeparam>
-    public class PairEnumerator<TFirst, TSecond> : IEnumerable<(TFirst First, TSecond Second)>
+    public PairEnumerator(IEnumerable<TFirst> firstEnumerable, IEnumerable<TSecond> secondEnumerable)
     {
-        private readonly Lazy<IEnumerable<(TFirst First, TSecond Second)>> _enumerable;
+        Guard.IsNotNull(firstEnumerable, nameof(firstEnumerable));
+        Guard.IsNotNull(secondEnumerable, nameof(secondEnumerable));
 
-        public PairEnumerator(IEnumerable<TFirst> firstEnumerable, IEnumerable<TSecond> secondEnumerable)
+        if (firstEnumerable.Count() != secondEnumerable.Count())
         {
-            Guard.IsNotNull(firstEnumerable, nameof(firstEnumerable));
-            Guard.IsNotNull(secondEnumerable, nameof(secondEnumerable));
-
-            if (firstEnumerable.Count() != secondEnumerable.Count())
-            {
-                throw new InvalidOperationException();
-            }
-
-            _enumerable = new Lazy<IEnumerable<(TFirst First, TSecond Second)>>(() =>
-                BuildData(firstEnumerable, secondEnumerable)
-            );
+            throw new InvalidOperationException();
         }
 
-        private static IEnumerable<(TFirst First, TSecond Second)> BuildData(
-            IEnumerable<TFirst> firstEnumerable,
-            IEnumerable<TSecond> secondEnumerable)
-        {
-            using IEnumerator<TFirst> firstEnumerator = firstEnumerable.GetEnumerator();
-            using IEnumerator<TSecond> secondEnumerator = secondEnumerable.GetEnumerator();
+        _enumerable = new Lazy<IEnumerable<(TFirst First, TSecond Second)>>(() =>
+            BuildData(firstEnumerable, secondEnumerable)
+        );
+    }
 
-            while (firstEnumerator.MoveNext() && secondEnumerator.MoveNext())
-            {
-                yield return (firstEnumerator.Current, secondEnumerator.Current);
-            }
-        }
+    public IEnumerator<(TFirst First, TSecond Second)> GetEnumerator()
+    {
+        return _enumerable.Value.GetEnumerator();
+    }
 
-        public IEnumerator<(TFirst First, TSecond Second)> GetEnumerator()
-        {
-            return _enumerable.Value.GetEnumerator();
-        }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return ((IEnumerable) _enumerable.Value).GetEnumerator();
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
+    private static IEnumerable<(TFirst First, TSecond Second)> BuildData(
+        IEnumerable<TFirst> firstEnumerable,
+        IEnumerable<TSecond> secondEnumerable)
+    {
+        using IEnumerator<TFirst> firstEnumerator = firstEnumerable.GetEnumerator();
+        using IEnumerator<TSecond> secondEnumerator = secondEnumerable.GetEnumerator();
+
+        while (firstEnumerator.MoveNext() && secondEnumerator.MoveNext())
         {
-            return ((IEnumerable) _enumerable.Value).GetEnumerator();
+            yield return (firstEnumerator.Current, secondEnumerator.Current);
         }
     }
 }

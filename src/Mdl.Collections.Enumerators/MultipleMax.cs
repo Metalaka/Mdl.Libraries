@@ -1,108 +1,107 @@
-﻿using System;
+﻿namespace Mdl.Collections.Enumerators;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Toolkit.Diagnostics;
 
-namespace Mdl.Collections.Enumerators
+/// <summary>
+/// Iterates over all attached enumerators until everyone are consumed.
+/// </summary>
+public class MultipleMax : IEnumerable<IEnumerable>
 {
-    using Microsoft.Toolkit.Diagnostics;
+    private readonly Lazy<IEnumerable<IEnumerable>> _enumerable;
 
-    /// <summary>
-    /// Iterates over all attached enumerators until everyone are consumed.
-    /// </summary>
-    public class MultipleMax : IEnumerable<IEnumerable>
+    public MultipleMax(params IEnumerable[] enumerables)
     {
-        private readonly Lazy<IEnumerable<IEnumerable>> _enumerable;
+        Guard.IsNotNull(enumerables, nameof(enumerables));
+        Guard.IsNotEmpty(enumerables, nameof(enumerables));
 
-        public MultipleMax(params IEnumerable[] enumerables)
+        if (enumerables.Any(e => e is null))
         {
-            Guard.IsNotNull(enumerables, nameof(enumerables));
-            Guard.IsNotEmpty(enumerables, nameof(enumerables));
-
-            if (enumerables.Any(e => e is null))
-            {
-                throw new ArgumentNullException(nameof(enumerables));
-            }
-
-            _enumerable = new Lazy<IEnumerable<IEnumerable>>(() => BuildData(enumerables));
+            throw new ArgumentNullException(nameof(enumerables));
         }
 
-        private static IEnumerable<IEnumerable> BuildData(IEnumerable<IEnumerable> enumerables)
+        _enumerable = new Lazy<IEnumerable<IEnumerable>>(() => BuildData(enumerables));
+    }
+
+    public IEnumerator<IEnumerable> GetEnumerator()
+    {
+        return _enumerable.Value.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return ((IEnumerable) _enumerable.Value).GetEnumerator();
+    }
+
+    private static IEnumerable<IEnumerable> BuildData(IEnumerable<IEnumerable> enumerables)
+    {
+        IEnumerable<ConsumableEnumerator> enumerators = enumerables
+            .Select(e => new ConsumableEnumerator(e))
+            .ToList();
+
+        while (true)
         {
-            IEnumerable<ConsumableEnumerator> enumerators = enumerables
-                .Select(e => new ConsumableEnumerator(e))
-                .ToList();
+            object?[] bucket = enumerators.ForEach(MoveNextOrReset)
+                .Select(e => e.Current)
+                .ToArray();
 
-            while (true)
+            if (enumerators.All(e => e.Consumed))
             {
-                object?[] bucket = enumerators.ForEach(MoveNextOrReset)
-                    .Select(e => e.Current)
-                    .ToArray();
-
-                if (enumerators.All(e => e.Consumed))
-                {
-                    yield break;
-                }
-
-                yield return bucket;
+                yield break;
             }
 
-            static void MoveNextOrReset(ConsumableEnumerator enumerator)
-            {
-                if (enumerator.MoveNext())
-                {
-                    return;
-                }
-
-                enumerator.SetConsumed();
-                enumerator.Reset();
-                if (!enumerator.MoveNext())
-                {
-                    throw new InvalidOperationException(@"Invalid state. Empty enumerable!");
-                }
-            }
+            yield return bucket;
         }
 
-        public IEnumerator<IEnumerable> GetEnumerator()
+        static void MoveNextOrReset(ConsumableEnumerator enumerator)
         {
-            return _enumerable.Value.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                return;
+            }
+
+            enumerator.SetConsumed();
+            enumerator.Reset();
+            if (!enumerator.MoveNext())
+            {
+                throw new InvalidOperationException(@"Invalid state. Empty enumerable!");
+            }
+        }
+    }
+
+    private sealed class ConsumableEnumerator : IEnumerator
+    {
+        private readonly IEnumerable _enumerable;
+        private IEnumerator? _enumerator;
+
+        public ConsumableEnumerator(IEnumerable enumerable, bool consumed = false)
+        {
+            _enumerable = enumerable;
+            Consumed = consumed;
+
+            Reset();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public bool Consumed { get; private set; }
+
+        public bool MoveNext()
         {
-            return ((IEnumerable) _enumerable.Value).GetEnumerator();
+            return _enumerator?.MoveNext() ?? false;
         }
 
-        private sealed class ConsumableEnumerator : IEnumerator
+        public void Reset()
         {
-            private readonly IEnumerable _enumerable;
-            private IEnumerator? _enumerator;
-            public bool Consumed { get; private set; }
+            _enumerator = _enumerable.GetEnumerator();
+        }
 
-            public ConsumableEnumerator(IEnumerable enumerable, bool consumed = false)
-            {
-                _enumerable = enumerable;
-                Consumed = consumed;
+        public object? Current => _enumerator?.Current;
 
-                Reset();
-            }
-
-            public void SetConsumed()
-            {
-                Consumed = true;
-            }
-
-            public bool MoveNext()
-            {
-                return _enumerator?.MoveNext() ?? false;
-            }
-
-            public void Reset()
-            {
-                _enumerator = _enumerable.GetEnumerator();
-            }
-
-            public object? Current => _enumerator?.Current;
+        public void SetConsumed()
+        {
+            Consumed = true;
         }
     }
 }
