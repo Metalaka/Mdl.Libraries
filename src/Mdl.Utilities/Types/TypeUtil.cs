@@ -11,7 +11,7 @@ namespace Mdl.Utilities.Types
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static string GetCurrentMethodName()
         {
-            var stackTrace = new StackTrace();
+            StackTrace stackTrace = new();
             StackFrame frame = stackTrace.GetFrame(1)!;
 
             return frame.GetMethod()?.Name ?? "";
