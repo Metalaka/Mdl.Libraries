@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Mdl.Utilities.Ensures;
 
 namespace Mdl.Collections.Enumerators
 {
+    using Microsoft.Toolkit.Diagnostics;
+
     /// <summary>
     /// Look ahead enumerator.
     /// </summary>
@@ -15,8 +16,8 @@ namespace Mdl.Collections.Enumerators
 
         public Lookahead(IEnumerable<TValue> enumerable)
         {
-            Ensure.NotNull(enumerable);
-            
+            Guard.IsNotNull(enumerable, nameof(enumerable));
+
             _enumerable = new Lazy<IEnumerable<Data>>(() => BuildData(enumerable));
         }
 
@@ -27,6 +28,7 @@ namespace Mdl.Collections.Enumerators
             {
                 yield break;
             }
+
             TValue previous = enumerator.Current;
 
             while (enumerator.MoveNext())
@@ -34,7 +36,7 @@ namespace Mdl.Collections.Enumerators
                 yield return new Data(previous, enumerator.Current);
                 previous = enumerator.Current;
             }
-            
+
             yield return new Data(previous);
         }
 
@@ -60,7 +62,7 @@ namespace Mdl.Collections.Enumerators
                 Next = default;
                 HasNext = false;
             }
-            
+
             internal Data(TValue current, TValue next)
             {
                 Current = current;

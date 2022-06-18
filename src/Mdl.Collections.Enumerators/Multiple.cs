@@ -5,6 +5,8 @@ using System.Linq;
 
 namespace Mdl.Collections.Enumerators
 {
+    using Microsoft.Toolkit.Diagnostics;
+
     /// <summary>
     /// Sequentially iterates over all attached enumerators until the first reach it's end.
     /// </summary>
@@ -19,14 +21,12 @@ namespace Mdl.Collections.Enumerators
 
         public Multiple(bool checkLength, params IEnumerable<TValue>[] enumerables)
         {
-            if (enumerables is null || enumerables.Any(e => e is null))
+            Guard.IsNotNull(enumerables, nameof(enumerables));
+            Guard.IsNotEmpty(enumerables, nameof(enumerables));
+
+            if (enumerables.Any(e => e is null))
             {
                 throw new ArgumentNullException(nameof(enumerables));
-            }
-
-            if (!enumerables.Any())
-            {
-                throw new ArgumentException("No enumerable provided.");
             }
 
             if (checkLength && !HasSameCount(enumerables))

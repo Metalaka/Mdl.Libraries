@@ -5,6 +5,8 @@ using System.Linq;
 
 namespace Mdl.Collections.Enumerators
 {
+    using Microsoft.Toolkit.Diagnostics;
+
     /// <summary>
     /// Iterates over all attached enumerators until everyone are consumed.
     /// </summary>
@@ -14,14 +16,12 @@ namespace Mdl.Collections.Enumerators
 
         public MultipleMax(params IEnumerable[] enumerables)
         {
-            if (enumerables is null || enumerables.Any(e => e is null))
+            Guard.IsNotNull(enumerables, nameof(enumerables));
+            Guard.IsNotEmpty(enumerables, nameof(enumerables));
+
+            if (enumerables.Any(e => e is null))
             {
                 throw new ArgumentNullException(nameof(enumerables));
-            }
-            
-            if (!enumerables.Any())
-            {
-                throw new ArgumentException("No enumerable provided.");
             }
 
             _enumerable = new Lazy<IEnumerable<IEnumerable>>(() => BuildData(enumerables));
@@ -35,7 +35,7 @@ namespace Mdl.Collections.Enumerators
 
             while (true)
             {
-                var bucket = enumerators.ForEach(MoveNextOrReset)
+                object?[] bucket = enumerators.ForEach(MoveNextOrReset)
                     .Select(e => e.Current)
                     .ToArray();
 

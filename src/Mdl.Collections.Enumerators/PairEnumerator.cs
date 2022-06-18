@@ -2,10 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Mdl.Utilities.Ensures;
 
 namespace Mdl.Collections.Enumerators
 {
+    using Microsoft.Toolkit.Diagnostics;
+
     /// <summary>
     /// Iterates over two enumerator sequentially.
     /// </summary>
@@ -17,9 +18,9 @@ namespace Mdl.Collections.Enumerators
 
         public PairEnumerator(IEnumerable<TFirst> firstEnumerable, IEnumerable<TSecond> secondEnumerable)
         {
-            Ensure.NotNull(firstEnumerable);
-            Ensure.NotNull(secondEnumerable);
-            
+            Guard.IsNotNull(firstEnumerable, nameof(firstEnumerable));
+            Guard.IsNotNull(secondEnumerable, nameof(secondEnumerable));
+
             if (firstEnumerable.Count() != secondEnumerable.Count())
             {
                 throw new InvalidOperationException();

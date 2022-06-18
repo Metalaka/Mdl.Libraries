@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Mdl.Utilities.Ensures;
 
 namespace Mdl.Collections.Enumerators
 {
+    using Microsoft.Toolkit.Diagnostics;
+
     /// <summary>
     /// Look behind enumerator.
     /// </summary>
@@ -15,8 +16,8 @@ namespace Mdl.Collections.Enumerators
 
         public Lookbehind(IEnumerable<TValue> enumerable)
         {
-            Ensure.NotNull(enumerable);
-            
+            Guard.IsNotNull(enumerable, nameof(enumerable));
+
             _enumerable = new Lazy<IEnumerable<Data>>(() => BuildData(enumerable));
         }
 
